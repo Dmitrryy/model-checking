@@ -199,10 +199,11 @@ Termination == <>(\A self \in ProcSet: pc[self] = "Done")
 
 LIVENoAlarm == [](~(systemMode = "disarmed" /\ alarmState = "sounding"))
 LIVEArmed == <>(alarmState = "disarmed" ~> alarmState = "armedStay")
+LIVEAlarm == <>(alarmState = "sounding")
 
 \*WindowBreakAlarm == <>(systemMode = "disarmed" \/ ((systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" /\ alarmState = "sounding"))
 
 =============================================================================
 \* Modification History
-\* Last modified Wed Dec 20 18:15:46 MSK 2023 by dadro
+\* Last modified Wed Dec 20 18:09:17 MSK 2023 by dadro
 \* Created Wed Dec 18 12:23:24 MSK 2023 by dadro

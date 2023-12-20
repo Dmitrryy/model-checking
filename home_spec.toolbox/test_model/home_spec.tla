@@ -10,34 +10,39 @@ variables
     alarmState = "off",
     systemMode = "disarmed",
     userNotified = "noNotification";
+    
+define
+SAFEWindowBreakAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" => alarmState = "sounding"
+SAFEDoorOpenAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ doorSensor = "opened" => alarmState = "sounding"
+SAFEMotionIgnored == (systemMode = "armedStay" \/ systemMode = "disabled") /\ (motionStatus = "Motion" /\ doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
+end define;
+
 
 fair process HomeOwner = "Owner"
 begin
     Owner:
     while (TRUE) do
         if (systemMode = "disarmed") then
+            doorSensor := "closed";
+            glassBreakSensor := "noBreakage";
+            cameraStatus := "off";
+            motionStatus := "noMotion";
+            alarmState := "off";
+            userNotified := "noNotification";
             systemMode := "armedStay";
-        elsif (userNotified = "Notification") then
+        elsif (userNotified = "notificationSent") then
+            (* reset system *)
             systemMode := "disarmed";
+            doorSensor := "closed";
+            glassBreakSensor := "noBreakage";
+            cameraStatus := "off";
+            motionStatus := "noMotion";
+            alarmState := "off";
+            userNotified := "noNotification";
+        elsif (systemMode = "armedStay") then
+            (* go away from home *)
+            systemMode := "armedAway";
         end if;
-    end while;
-end process;
-
-
-fair process SystemMode \in {"armedStay", "armedAway", "disarmed"}
-begin
-    ModeChange:
-    while (TRUE) do
-        with newMode \in {"armedStay", "armedAway", "disarmed"} do
-            systemMode := newMode;
-            if (systemMode = "disarmed") then
-                alarmState := "off";
-                cameraStatus := "off";
-                userNotified := "noNotification";
-            else
-                cameraStatus := "on";
-            end if;
-        end with;
     end while;
 end process;
 
@@ -58,6 +63,11 @@ begin
                 userNotified := "notificationSent";
             end if;
         or
+            motionStatus := "Motion";
+            if (systemMode = "armedAway") then
+                alarmState := "sounding";
+                userNotified := "notificationSent";
+            end if;
             skip;
         end either;
     end while;
@@ -79,14 +89,20 @@ end process;
 end algorithm
 *)
 
-\* BEGIN TRANSLATION (chksum(pcal) = "137ba2eb" /\ chksum(tla) = "674f73d")
+\* BEGIN TRANSLATION (chksum(pcal) = "31c877f3" /\ chksum(tla) = "2a637bd8")
 VARIABLES doorSensor, glassBreakSensor, cameraStatus, motionStatus, 
           alarmState, systemMode, userNotified, pc
+
+(* define statement *)
+SAFEWindowBreakAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" => alarmState = "sounding"
+SAFEDoorOpenAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ doorSensor = "opened" => alarmState = "sounding"
+SAFEMotionIgnored == (systemMode = "armedStay" \/ systemMode = "disabled") /\ (motionStatus = "Motion" /\ doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
+
 
 vars == << doorSensor, glassBreakSensor, cameraStatus, motionStatus, 
            alarmState, systemMode, userNotified, pc >>
 
-ProcSet == {"Owner"} \cup ({"armedStay", "armedAway", "disarmed"}) \cup {"Sensor"} \cup {"Camera"}
+ProcSet == {"Owner"} \cup {"Sensor"} \cup {"Camera"}
 
 Init == (* Global variables *)
         /\ doorSensor = "closed"
@@ -97,36 +113,36 @@ Init == (* Global variables *)
         /\ systemMode = "disarmed"
         /\ userNotified = "noNotification"
         /\ pc = [self \in ProcSet |-> CASE self = "Owner" -> "Owner"
-                                        [] self \in {"armedStay", "armedAway", "disarmed"} -> "ModeChange"
                                         [] self = "Sensor" -> "SensorTrigger"
                                         [] self = "Camera" -> "CameraOperation"]
 
 Owner == /\ pc["Owner"] = "Owner"
          /\ IF (systemMode = "disarmed")
-               THEN /\ systemMode' = "armedStay"
-               ELSE /\ IF (userNotified = "Notification")
+               THEN /\ doorSensor' = "closed"
+                    /\ glassBreakSensor' = "noBreakage"
+                    /\ cameraStatus' = "off"
+                    /\ motionStatus' = "noMotion"
+                    /\ alarmState' = "off"
+                    /\ userNotified' = "noNotification"
+                    /\ systemMode' = "armedStay"
+               ELSE /\ IF (userNotified = "notificationSent")
                           THEN /\ systemMode' = "disarmed"
-                          ELSE /\ TRUE
-                               /\ UNCHANGED systemMode
+                               /\ doorSensor' = "closed"
+                               /\ glassBreakSensor' = "noBreakage"
+                               /\ cameraStatus' = "off"
+                               /\ motionStatus' = "noMotion"
+                               /\ alarmState' = "off"
+                               /\ userNotified' = "noNotification"
+                          ELSE /\ IF (systemMode = "armedStay")
+                                     THEN /\ systemMode' = "armedAway"
+                                     ELSE /\ TRUE
+                                          /\ UNCHANGED systemMode
+                               /\ UNCHANGED << doorSensor, glassBreakSensor, 
+                                               cameraStatus, motionStatus, 
+                                               alarmState, userNotified >>
          /\ pc' = [pc EXCEPT !["Owner"] = "Owner"]
-         /\ UNCHANGED << doorSensor, glassBreakSensor, cameraStatus, 
-                         motionStatus, alarmState, userNotified >>
 
 HomeOwner == Owner
-
-ModeChange(self) == /\ pc[self] = "ModeChange"
-                    /\ \E newMode \in {"armedStay", "armedAway", "disarmed"}:
-                         /\ systemMode' = newMode
-                         /\ IF (systemMode' = "disarmed")
-                               THEN /\ alarmState' = "off"
-                                    /\ cameraStatus' = "off"
-                                    /\ userNotified' = "noNotification"
-                               ELSE /\ cameraStatus' = "on"
-                                    /\ UNCHANGED << alarmState, userNotified >>
-                    /\ pc' = [pc EXCEPT ![self] = "ModeChange"]
-                    /\ UNCHANGED << doorSensor, glassBreakSensor, motionStatus >>
-
-SystemMode(self) == ModeChange(self)
 
 SensorTrigger == /\ pc["Sensor"] = "SensorTrigger"
                  /\ \/ /\ doorSensor' = "opened"
@@ -135,18 +151,24 @@ SensorTrigger == /\ pc["Sensor"] = "SensorTrigger"
                                   /\ userNotified' = "notificationSent"
                              ELSE /\ TRUE
                                   /\ UNCHANGED << alarmState, userNotified >>
-                       /\ UNCHANGED glassBreakSensor
+                       /\ UNCHANGED <<glassBreakSensor, motionStatus>>
                     \/ /\ glassBreakSensor' = "breakageDetected"
                        /\ IF (systemMode /= "disarmed")
                              THEN /\ alarmState' = "sounding"
                                   /\ userNotified' = "notificationSent"
                              ELSE /\ TRUE
                                   /\ UNCHANGED << alarmState, userNotified >>
-                       /\ UNCHANGED doorSensor
-                    \/ /\ TRUE
-                       /\ UNCHANGED <<doorSensor, glassBreakSensor, alarmState, userNotified>>
+                       /\ UNCHANGED <<doorSensor, motionStatus>>
+                    \/ /\ motionStatus' = "Motion"
+                       /\ IF (systemMode = "armedAway")
+                             THEN /\ alarmState' = "sounding"
+                                  /\ userNotified' = "notificationSent"
+                             ELSE /\ TRUE
+                                  /\ UNCHANGED << alarmState, userNotified >>
+                       /\ TRUE
+                       /\ UNCHANGED <<doorSensor, glassBreakSensor>>
                  /\ pc' = [pc EXCEPT !["Sensor"] = "SensorTrigger"]
-                 /\ UNCHANGED << cameraStatus, motionStatus, systemMode >>
+                 /\ UNCHANGED << cameraStatus, systemMode >>
 
 Sensor == SensorTrigger
 
@@ -165,20 +187,22 @@ Terminating == /\ \A self \in ProcSet: pc[self] = "Done"
                /\ UNCHANGED vars
 
 Next == HomeOwner \/ Sensor \/ Camera
-           \/ (\E self \in {"armedStay", "armedAway", "disarmed"}: SystemMode(self))
            \/ Terminating
 
 Spec == /\ Init /\ [][Next]_vars
         /\ WF_vars(HomeOwner)
-        /\ \A self \in {"armedStay", "armedAway", "disarmed"} : WF_vars(SystemMode(self))
         /\ WF_vars(Camera)
 
 Termination == <>(\A self \in ProcSet: pc[self] = "Done")
 
 \* END TRANSLATION 
 
+LIVENoAlarm == [](~(systemMode = "disarmed" /\ alarmState = "sounding"))
+LIVEArmed == <>(alarmState = "disarmed" ~> alarmState = "armedStay")
+
+\*WindowBreakAlarm == <>(systemMode = "disarmed" \/ ((systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" /\ alarmState = "sounding"))
 
 =============================================================================
 \* Modification History
-\* Last modified Wed Dec 20 14:23:27 MSK 2023 by dadro
+\* Last modified Wed Dec 20 18:15:46 MSK 2023 by dadro
 \* Created Wed Dec 18 12:23:24 MSK 2023 by dadro

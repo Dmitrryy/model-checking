@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.lamport.tla.toolbox.tool.tlc.modelCheck">
-    <stringAttribute key="configurationName" value="test_model"/>
+    <stringAttribute key="configurationName" value="test_model_SnapShot_1703084809758"/>
     <intAttribute key="distributedFPSetCount" value="0"/>
     <stringAttribute key="distributedNetworkInterface" value="11.243.87.61"/>
     <intAttribute key="distributedNodesCount" value="1"/>
     <stringAttribute key="distributedTLC" value="off"/>
-    <intAttribute key="fpIndex" value="78"/>
+    <intAttribute key="fpIndex" value="5"/>
     <intAttribute key="maxHeapSize" value="25"/>
     <stringAttribute key="modelBehaviorInit" value=""/>
     <stringAttribute key="modelBehaviorNext" value=""/>
@@ -23,6 +23,7 @@
         <listEntry value="0Termination"/>
         <listEntry value="1LIVENoAlarm"/>
         <listEntry value="1LIVEArmed"/>
+        <listEntry value="1LIVEAlarm"/>
     </listAttribute>
     <intAttribute key="modelEditorOpenTabs" value="8"/>
     <stringAttribute key="modelExpressionEval" value=""/>

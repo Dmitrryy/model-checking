@@ -64,7 +64,7 @@ begin
             end if;
         or
             motionStatus := "Motion";
-            if (systemMode = "armedAway") then
+            if (systemMode /= "disarmed") then
                 alarmState := "sounding";
                 userNotified := "notificationSent";
             end if;
@@ -89,7 +89,7 @@ end process;
 end algorithm
 *)
 
-\* BEGIN TRANSLATION (chksum(pcal) = "31c877f3" /\ chksum(tla) = "2a637bd8")
+\* BEGIN TRANSLATION (chksum(pcal) = "ca12ccf7" /\ chksum(tla) = "b403eb36")
 VARIABLES doorSensor, glassBreakSensor, cameraStatus, motionStatus, 
           alarmState, systemMode, userNotified, pc
 
@@ -160,7 +160,7 @@ SensorTrigger == /\ pc["Sensor"] = "SensorTrigger"
                                   /\ UNCHANGED << alarmState, userNotified >>
                        /\ UNCHANGED <<doorSensor, motionStatus>>
                     \/ /\ motionStatus' = "Motion"
-                       /\ IF (systemMode = "armedAway")
+                       /\ IF (systemMode /= "disarmed")
                              THEN /\ alarmState' = "sounding"
                                   /\ userNotified' = "notificationSent"
                              ELSE /\ TRUE
@@ -199,10 +199,11 @@ Termination == <>(\A self \in ProcSet: pc[self] = "Done")
 
 LIVENoAlarm == [](~(systemMode = "disarmed" /\ alarmState = "sounding"))
 LIVEArmed == <>(alarmState = "disarmed" ~> alarmState = "armedStay")
+LIVEAlarm == <>(alarmState = "sounding")
 
 \*WindowBreakAlarm == <>(systemMode = "disarmed" \/ ((systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" /\ alarmState = "sounding"))
 
 =============================================================================
 \* Modification History
-\* Last modified Wed Dec 20 18:15:46 MSK 2023 by dadro
+\* Last modified Wed Dec 20 18:08:32 MSK 2023 by dadro
 \* Created Wed Dec 18 12:23:24 MSK 2023 by dadro
