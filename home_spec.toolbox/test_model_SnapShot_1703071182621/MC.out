@@ -1,0 +1,167 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2.18 of Day Month 20?? (rev: c553ff4)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 64 and seed -1074023577595601535 with 4 workers on 8 cores with 1191MB heap and 2678MB offheap memory [pid: 22564] (Windows 10 10.0 amd64, AdoptOpenJDK 14.0.1 x86_64, OffHeapDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file C:\Users\dadro\source\repos\model-checking\home_spec.toolbox\test_model\MC.tla
+Parsing file C:\Users\dadro\source\repos\model-checking\home_spec.toolbox\test_model\home_spec.tla
+Parsing file C:\Users\dadro\source\TLAToolbox-1.8.0-win32.win32.x86_64\toolbox\plugins\org.lamport.tlatools_1.0.0.202312160604\tla2sany\StandardModules\TLC.tla
+Parsing file C:\Users\dadro\source\TLAToolbox-1.8.0-win32.win32.x86_64\toolbox\plugins\org.lamport.tlatools_1.0.0.202312160604\tla2sany\StandardModules\Integers.tla
+Parsing file C:\Users\dadro\source\TLAToolbox-1.8.0-win32.win32.x86_64\toolbox\plugins\org.lamport.tlatools_1.0.0.202312160604\tla2sany\StandardModules\Naturals.tla
+Parsing file C:\Users\dadro\source\TLAToolbox-1.8.0-win32.win32.x86_64\toolbox\plugins\org.lamport.tlatools_1.0.0.202312160604\tla2sany\StandardModules\Sequences.tla
+Parsing file C:\Users\dadro\source\TLAToolbox-1.8.0-win32.win32.x86_64\toolbox\plugins\org.lamport.tlatools_1.0.0.202312160604\tla2sany\StandardModules\FiniteSets.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module home_spec
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module MC
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2023-12-20 14:19:40)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 1000:1 @!@!@
+Attempted to check equality of string "Owner" with non-string:
+1
+@!@!@ENDMSG 1000 @!@!@
+@!@!@STARTMSG 2147:1 @!@!@
+TLC was unable to fingerprint.
+
+Fingerprint Stack Trace:
+0. Line 92, column 9 to line 101, column 77 in home_spec
+1. Line 92, column 12 to line 92, column 32 in home_spec
+2. Line 93, column 12 to line 93, column 42 in home_spec
+3. Line 94, column 12 to line 94, column 31 in home_spec
+4. Line 95, column 12 to line 95, column 36 in home_spec
+5. Line 96, column 12 to line 96, column 29 in home_spec
+6. Line 97, column 12 to line 97, column 34 in home_spec
+7. Line 98, column 12 to line 98, column 42 in home_spec
+8. Line 99, column 12 to line 101, column 77 in home_spec
+9. Line 99, column 17 to line 101, column 77 in home_spec
+10. Line 99, column 27 to line 99, column 33 in home_spec
+11. Line 89, column 12 to line 89, column 77 in home_spec
+12. Line 89, column 12 to line 89, column 66 in home_spec
+
+
+Reason:
+Attempted to check equality of string "Owner" with non-string:
+1
+@!@!@ENDMSG 2147 @!@!@
+@!@!@STARTMSG 2201:0 @!@!@
+The coverage statistics at 2023-12-20 14:19:41
+@!@!@ENDMSG 2201 @!@!@
+@!@!@STARTMSG 2773:0 @!@!@
+<Init line 91, col 1 to line 91, col 4 of module home_spec>: 0:0
+@!@!@ENDMSG 2773 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 99, col 17 to line 101, col 77 of module home_spec: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  |line 99, col 27 to line 99, col 33 of module home_spec: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  ||line 89, col 12 to line 89, col 77 of module home_spec: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  |||line 89, col 12 to line 89, col 66 of module home_spec: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  ||||line 89, col 12 to line 89, col 20 of module home_spec: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2775:0 @!@!@
+  ||||line 89, col 28 to line 89, col 65 of module home_spec: 2:8
+@!@!@ENDMSG 2775 @!@!@
+@!@!@STARTMSG 2775:0 @!@!@
+  |||line 89, col 74 to line 89, col 76 of module home_spec: 2:2
+@!@!@ENDMSG 2775 @!@!@
+@!@!@STARTMSG 2772:0 @!@!@
+<Owner line 103, col 1 to line 103, col 5 of module home_spec>: 0:0
+@!@!@ENDMSG 2772 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 105, col 24 to line 105, col 48 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 107, col 35 to line 107, col 58 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 109, col 35 to line 109, col 54 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 110, col 13 to line 110, col 50 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 111, col 13 to line 112, col 66 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2772:0 @!@!@
+<ModeChange line 116, col 1 to line 116, col 16 of module home_spec>: 0:0
+@!@!@ENDMSG 2772 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 118, col 29 to line 118, col 49 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 120, col 40 to line 120, col 58 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 121, col 40 to line 121, col 60 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 122, col 40 to line 122, col 71 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 123, col 40 to line 123, col 59 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 124, col 40 to line 124, col 79 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 125, col 24 to line 125, col 63 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 126, col 24 to line 126, col 81 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2772:0 @!@!@
+<CameraOperation line 130, col 1 to line 130, col 21 of module home_spec>: 0:0
+@!@!@ENDMSG 2772 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 132, col 40 to line 132, col 66 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 133, col 40 to line 133, col 69 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 134, col 29 to line 134, col 73 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 135, col 29 to line 137, col 56 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2772:0 @!@!@
+<Terminating line 142, col 1 to line 142, col 11 of module home_spec>: 0:0
+@!@!@ENDMSG 2772 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 143, col 19 to line 143, col 32 of module home_spec: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2202:0 @!@!@
+End of statistics.
+@!@!@ENDMSG 2202 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(1) at 2023-12-20 14:19:41: 0 states generated (0 s/min), 0 distinct states found (0 ds/min), 0 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+0 states generated, 0 distinct states found, 0 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2194:0 @!@!@
+The depth of the complete state graph search is 0.
+@!@!@ENDMSG 2194 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 1446ms at (2023-12-20 14:19:41)
+@!@!@ENDMSG 2186 @!@!@
