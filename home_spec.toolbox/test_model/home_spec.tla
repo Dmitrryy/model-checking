@@ -9,12 +9,15 @@ variables
     motionStatus = "noMotion",
     alarmState = "off",
     systemMode = "disarmed",
-    userNotified = "noNotification";
+    userNotified = "noNotification",
+    petMotionFeature = "off",
+    petDetected = "no";
     
 define
 SAFEWindowBreakAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" => alarmState = "sounding"
 SAFEDoorOpenAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ doorSensor = "opened" => alarmState = "sounding"
 SAFEMotionIgnored == (systemMode = "armedStay" \/ systemMode = "disabled") /\ (motionStatus = "Motion" /\ doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
+SAFEPetNotDetected == systemMode = "armedAway" /\ petMotionFeature = "on" /\ petDetected = "yes" /\ (doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
 end define;
 
 
@@ -29,6 +32,7 @@ begin
             motionStatus := "noMotion";
             alarmState := "off";
             userNotified := "noNotification";
+            petDetected := "no";
             systemMode := "armedStay";
         elsif (userNotified = "notificationSent") then
             (* reset system *)
@@ -38,10 +42,16 @@ begin
             cameraStatus := "off";
             motionStatus := "noMotion";
             alarmState := "off";
+            petDetected := "no";
             userNotified := "noNotification";
         elsif (systemMode = "armedStay") then
             (* go away from home *)
             systemMode := "armedAway";
+            either
+                petMotionFeature := "on";
+            or
+                petMotionFeature := "off";
+            end either;
         end if;
     end while;
 end process;
@@ -64,45 +74,45 @@ begin
             end if;
         or
             motionStatus := "Motion";
-            if (systemMode = "armedAway") then
+            
+            if (petMotionFeature = "on" /\ alarmState /= "sounding") then
+            either
+                petDetected := "yes";
+            or
+                petDetected := "no";
+            end either;
+            end if;
+            
+            if (petDetected = "no" /\ systemMode = "armedAway") then
                 alarmState := "sounding";
                 userNotified := "notificationSent";
             end if;
+        or
             skip;
         end either;
-    end while;
-end process;
-
-
-fair process Camera = "Camera"
-begin
-    CameraOperation:
-    while (TRUE) do
-        if (alarmState = "sounding") then
-            cameraStatus := "recording";
-        else
-            cameraStatus := "notRecording";
-        end if;
     end while;
 end process;
 
 end algorithm
 *)
 
-\* BEGIN TRANSLATION (chksum(pcal) = "31c877f3" /\ chksum(tla) = "2a637bd8")
+\* BEGIN TRANSLATION (chksum(pcal) = "4d4178c8" /\ chksum(tla) = "a0ed3e99")
 VARIABLES doorSensor, glassBreakSensor, cameraStatus, motionStatus, 
-          alarmState, systemMode, userNotified, pc
+          alarmState, systemMode, userNotified, petMotionFeature, petDetected, 
+          pc
 
 (* define statement *)
 SAFEWindowBreakAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" => alarmState = "sounding"
 SAFEDoorOpenAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ doorSensor = "opened" => alarmState = "sounding"
 SAFEMotionIgnored == (systemMode = "armedStay" \/ systemMode = "disabled") /\ (motionStatus = "Motion" /\ doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
+SAFEPetNotDetected == systemMode = "armedAway" /\ petMotionFeature = "on" /\ petDetected = "yes" /\ (doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
 
 
 vars == << doorSensor, glassBreakSensor, cameraStatus, motionStatus, 
-           alarmState, systemMode, userNotified, pc >>
+           alarmState, systemMode, userNotified, petMotionFeature, 
+           petDetected, pc >>
 
-ProcSet == {"Owner"} \cup {"Sensor"} \cup {"Camera"}
+ProcSet == {"Owner"} \cup {"Sensor"}
 
 Init == (* Global variables *)
         /\ doorSensor = "closed"
@@ -112,9 +122,10 @@ Init == (* Global variables *)
         /\ alarmState = "off"
         /\ systemMode = "disarmed"
         /\ userNotified = "noNotification"
+        /\ petMotionFeature = "off"
+        /\ petDetected = "no"
         /\ pc = [self \in ProcSet |-> CASE self = "Owner" -> "Owner"
-                                        [] self = "Sensor" -> "SensorTrigger"
-                                        [] self = "Camera" -> "CameraOperation"]
+                                        [] self = "Sensor" -> "SensorTrigger"]
 
 Owner == /\ pc["Owner"] = "Owner"
          /\ IF (systemMode = "disarmed")
@@ -124,7 +135,9 @@ Owner == /\ pc["Owner"] = "Owner"
                     /\ motionStatus' = "noMotion"
                     /\ alarmState' = "off"
                     /\ userNotified' = "noNotification"
+                    /\ petDetected' = "no"
                     /\ systemMode' = "armedStay"
+                    /\ UNCHANGED petMotionFeature
                ELSE /\ IF (userNotified = "notificationSent")
                           THEN /\ systemMode' = "disarmed"
                                /\ doorSensor' = "closed"
@@ -132,14 +145,20 @@ Owner == /\ pc["Owner"] = "Owner"
                                /\ cameraStatus' = "off"
                                /\ motionStatus' = "noMotion"
                                /\ alarmState' = "off"
+                               /\ petDetected' = "no"
                                /\ userNotified' = "noNotification"
+                               /\ UNCHANGED petMotionFeature
                           ELSE /\ IF (systemMode = "armedStay")
                                      THEN /\ systemMode' = "armedAway"
+                                          /\ \/ /\ petMotionFeature' = "on"
+                                             \/ /\ petMotionFeature' = "off"
                                      ELSE /\ TRUE
-                                          /\ UNCHANGED systemMode
+                                          /\ UNCHANGED << systemMode, 
+                                                          petMotionFeature >>
                                /\ UNCHANGED << doorSensor, glassBreakSensor, 
                                                cameraStatus, motionStatus, 
-                                               alarmState, userNotified >>
+                                               alarmState, userNotified, 
+                                               petDetected >>
          /\ pc' = [pc EXCEPT !["Owner"] = "Owner"]
 
 HomeOwner == Owner
@@ -151,47 +170,42 @@ SensorTrigger == /\ pc["Sensor"] = "SensorTrigger"
                                   /\ userNotified' = "notificationSent"
                              ELSE /\ TRUE
                                   /\ UNCHANGED << alarmState, userNotified >>
-                       /\ UNCHANGED <<glassBreakSensor, motionStatus>>
+                       /\ UNCHANGED <<glassBreakSensor, motionStatus, petDetected>>
                     \/ /\ glassBreakSensor' = "breakageDetected"
                        /\ IF (systemMode /= "disarmed")
                              THEN /\ alarmState' = "sounding"
                                   /\ userNotified' = "notificationSent"
                              ELSE /\ TRUE
                                   /\ UNCHANGED << alarmState, userNotified >>
-                       /\ UNCHANGED <<doorSensor, motionStatus>>
+                       /\ UNCHANGED <<doorSensor, motionStatus, petDetected>>
                     \/ /\ motionStatus' = "Motion"
-                       /\ IF (systemMode = "armedAway")
+                       /\ IF (petMotionFeature = "on" /\ alarmState /= "sounding")
+                             THEN /\ \/ /\ petDetected' = "yes"
+                                     \/ /\ petDetected' = "no"
+                             ELSE /\ TRUE
+                                  /\ UNCHANGED petDetected
+                       /\ IF (petDetected' = "no" /\ systemMode = "armedAway")
                              THEN /\ alarmState' = "sounding"
                                   /\ userNotified' = "notificationSent"
                              ELSE /\ TRUE
                                   /\ UNCHANGED << alarmState, userNotified >>
-                       /\ TRUE
                        /\ UNCHANGED <<doorSensor, glassBreakSensor>>
+                    \/ /\ TRUE
+                       /\ UNCHANGED <<doorSensor, glassBreakSensor, motionStatus, alarmState, userNotified, petDetected>>
                  /\ pc' = [pc EXCEPT !["Sensor"] = "SensorTrigger"]
-                 /\ UNCHANGED << cameraStatus, systemMode >>
+                 /\ UNCHANGED << cameraStatus, systemMode, petMotionFeature >>
 
 Sensor == SensorTrigger
-
-CameraOperation == /\ pc["Camera"] = "CameraOperation"
-                   /\ IF (alarmState = "sounding")
-                         THEN /\ cameraStatus' = "recording"
-                         ELSE /\ cameraStatus' = "notRecording"
-                   /\ pc' = [pc EXCEPT !["Camera"] = "CameraOperation"]
-                   /\ UNCHANGED << doorSensor, glassBreakSensor, motionStatus, 
-                                   alarmState, systemMode, userNotified >>
-
-Camera == CameraOperation
 
 (* Allow infinite stuttering to prevent deadlock on termination. *)
 Terminating == /\ \A self \in ProcSet: pc[self] = "Done"
                /\ UNCHANGED vars
 
-Next == HomeOwner \/ Sensor \/ Camera
+Next == HomeOwner \/ Sensor
            \/ Terminating
 
 Spec == /\ Init /\ [][Next]_vars
         /\ WF_vars(HomeOwner)
-        /\ WF_vars(Camera)
 
 Termination == <>(\A self \in ProcSet: pc[self] = "Done")
 
@@ -204,5 +218,5 @@ LIVEArmed == <>(alarmState = "disarmed" ~> alarmState = "armedStay")
 
 =============================================================================
 \* Modification History
-\* Last modified Wed Dec 20 18:15:46 MSK 2023 by dadro
+\* Last modified Wed Dec 20 20:20:42 MSK 2023 by dadro
 \* Created Wed Dec 18 12:23:24 MSK 2023 by dadro

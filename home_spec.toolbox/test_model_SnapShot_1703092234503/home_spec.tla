@@ -75,7 +75,7 @@ begin
         or
             motionStatus := "Motion";
             
-            if (petMotionFeature = "on" /\ alarmState /= "sounding") then
+            if (petMotionFeature = "on") then
             either
                 petDetected := "yes";
             or
@@ -96,7 +96,7 @@ end process;
 end algorithm
 *)
 
-\* BEGIN TRANSLATION (chksum(pcal) = "4d4178c8" /\ chksum(tla) = "a0ed3e99")
+\* BEGIN TRANSLATION (chksum(pcal) = "57b63871" /\ chksum(tla) = "31c51823")
 VARIABLES doorSensor, glassBreakSensor, cameraStatus, motionStatus, 
           alarmState, systemMode, userNotified, petMotionFeature, petDetected, 
           pc
@@ -179,7 +179,7 @@ SensorTrigger == /\ pc["Sensor"] = "SensorTrigger"
                                   /\ UNCHANGED << alarmState, userNotified >>
                        /\ UNCHANGED <<doorSensor, motionStatus, petDetected>>
                     \/ /\ motionStatus' = "Motion"
-                       /\ IF (petMotionFeature = "on" /\ alarmState /= "sounding")
+                       /\ IF (petMotionFeature = "on")
                              THEN /\ \/ /\ petDetected' = "yes"
                                      \/ /\ petDetected' = "no"
                              ELSE /\ TRUE
@@ -218,5 +218,5 @@ LIVEArmed == <>(alarmState = "disarmed" ~> alarmState = "armedStay")
 
 =============================================================================
 \* Modification History
-\* Last modified Wed Dec 20 20:20:42 MSK 2023 by dadro
+\* Last modified Wed Dec 20 20:10:25 MSK 2023 by dadro
 \* Created Wed Dec 18 12:23:24 MSK 2023 by dadro

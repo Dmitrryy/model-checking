@@ -17,7 +17,7 @@ define
 SAFEWindowBreakAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" => alarmState = "sounding"
 SAFEDoorOpenAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ doorSensor = "opened" => alarmState = "sounding"
 SAFEMotionIgnored == (systemMode = "armedStay" \/ systemMode = "disabled") /\ (motionStatus = "Motion" /\ doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
-SAFEPetNotDetected == systemMode = "armedAway" /\ petMotionFeature = "on" /\ petDetected = "yes" /\ (doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
+SAFEPetNotDetected == systemMode = "armedAway" /\ petMotionFeature = "on" /\ petDetected = "yes" => alarmState /= "sounding"
 end define;
 
 
@@ -75,7 +75,7 @@ begin
         or
             motionStatus := "Motion";
             
-            if (petMotionFeature = "on" /\ alarmState /= "sounding") then
+            if (petMotionFeature = "on") then
             either
                 petDetected := "yes";
             or
@@ -96,7 +96,7 @@ end process;
 end algorithm
 *)
 
-\* BEGIN TRANSLATION (chksum(pcal) = "4d4178c8" /\ chksum(tla) = "a0ed3e99")
+\* BEGIN TRANSLATION (chksum(pcal) = "45ee415d" /\ chksum(tla) = "d6cffd8a")
 VARIABLES doorSensor, glassBreakSensor, cameraStatus, motionStatus, 
           alarmState, systemMode, userNotified, petMotionFeature, petDetected, 
           pc
@@ -105,7 +105,7 @@ VARIABLES doorSensor, glassBreakSensor, cameraStatus, motionStatus,
 SAFEWindowBreakAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ glassBreakSensor = "breakageDetected" => alarmState = "sounding"
 SAFEDoorOpenAlarm == (systemMode = "armedStay" \/ systemMode = "armedAway") /\ doorSensor = "opened" => alarmState = "sounding"
 SAFEMotionIgnored == (systemMode = "armedStay" \/ systemMode = "disabled") /\ (motionStatus = "Motion" /\ doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
-SAFEPetNotDetected == systemMode = "armedAway" /\ petMotionFeature = "on" /\ petDetected = "yes" /\ (doorSensor /= "opened" /\ glassBreakSensor /= "breakageDetected") => alarmState /= "sounding"
+SAFEPetNotDetected == systemMode = "armedAway" /\ petMotionFeature = "on" /\ petDetected = "yes" => alarmState /= "sounding"
 
 
 vars == << doorSensor, glassBreakSensor, cameraStatus, motionStatus, 
@@ -179,7 +179,7 @@ SensorTrigger == /\ pc["Sensor"] = "SensorTrigger"
                                   /\ UNCHANGED << alarmState, userNotified >>
                        /\ UNCHANGED <<doorSensor, motionStatus, petDetected>>
                     \/ /\ motionStatus' = "Motion"
-                       /\ IF (petMotionFeature = "on" /\ alarmState /= "sounding")
+                       /\ IF (petMotionFeature = "on")
                              THEN /\ \/ /\ petDetected' = "yes"
                                      \/ /\ petDetected' = "no"
                              ELSE /\ TRUE
@@ -218,5 +218,5 @@ LIVEArmed == <>(alarmState = "disarmed" ~> alarmState = "armedStay")
 
 =============================================================================
 \* Modification History
-\* Last modified Wed Dec 20 20:20:42 MSK 2023 by dadro
+\* Last modified Wed Dec 20 20:03:04 MSK 2023 by dadro
 \* Created Wed Dec 18 12:23:24 MSK 2023 by dadro
