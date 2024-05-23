@@ -119,3 +119,79 @@ fact "init" {
 run {
 	always transitions
 } for 12 but 1..10 steps
+
+// checks and assert
+//=------------------------------------------------------------------------------------------------
+pred check_pop {
+	--prereq
+    some v_head.*v_next
+    StackIsValid
+    #v_head.*v_next > 1
+    
+	--action
+    pop
+
+	--postreq
+    // Head should be updated to the next element
+    some v_head'.v_next
+    // Popped element should be in freeElems
+    v_head in DataManager.freeElems'
+    // The rest of the elements should remain the same
+    all i: item - v_head' | i.v_next' = i.v_next
+    StackIsValid
+}
+
+pred check_push {
+	--prereq
+    some v_head.*v_next
+    StackIsValid
+    some e: item | e in DataManager.freeElems
+    
+	--action
+    // Choose an element to push
+    some e: item
+    {
+        push[e]
+
+		--postreq
+        // New head should be the pushed element
+        v_head' = e
+        // Pushed element should not be in freeElems
+        e not in DataManager.freeElems'
+        // The rest of the elements should remain the same
+        all i: item - v_head' | i.v_next' = i.v_next
+        StackIsValid
+    }
+}
+
+pred check_clear {
+	--prereq
+    some v_head.*v_next
+    StackIsValid
+
+	--action
+    clear
+
+	--postreq
+    // All elements except head should be in freeElems
+    all i: item - v_head | i in DataManager.freeElems'
+    // Head should not point to any next element
+    no v_head'.v_next'
+    StackIsValid
+}
+
+assert checkPop {
+    check_pop
+}
+
+assert checkPush {
+    check_push
+}
+
+assert checkClear {
+    check_clear
+}
+
+check checkPop for 12 but 1..10 steps
+check checkPush for 12 but 1..10 steps
+check checkClear for 12 but 1..10 steps
