@@ -28,7 +28,7 @@ pred pop {
 	--postreq
 		no v_head.v_next'
 		all i: item - v_head' | i.v_next' = i.v_next
-		StackIsValid
+		=> after StackIsValid
 }
 
 pred push[e: item] {
@@ -44,7 +44,7 @@ pred push[e: item] {
 	--postreq
 		v_head.v_next' = v_head.v_next
 		all i: item - v_head' | i.v_next' = i.v_next
-		StackIsValid
+		=> after StackIsValid
 }
 
 pred clear{ 
@@ -61,7 +61,7 @@ pred clear{
 		all i : DataManager.freeElems' | no i.v_next'
 		v_head' = v_head
 		no v_head'.v_next'
-		StackIsValid
+		=> after StackIsValid
 }
 
 // HELPER FUNCTIONS
@@ -138,7 +138,7 @@ pred check_pop {
     v_head in DataManager.freeElems'
     // The rest of the elements should remain the same
     all i: item - v_head' | i.v_next' = i.v_next
-    StackIsValid
+	=> after StackIsValid
 }
 
 pred check_push {
@@ -160,7 +160,7 @@ pred check_push {
         e not in DataManager.freeElems'
         // The rest of the elements should remain the same
         all i: item - v_head' | i.v_next' = i.v_next
-        StackIsValid
+		=> after StackIsValid
     }
 }
 
@@ -177,21 +177,7 @@ pred check_clear {
     all i: item - v_head | i in DataManager.freeElems'
     // Head should not point to any next element
     no v_head'.v_next'
-    StackIsValid
+	=> after StackIsValid
 }
 
-assert checkPop {
-    check_pop
-}
-
-assert checkPush {
-    check_push
-}
-
-assert checkClear {
-    check_clear
-}
-
-check checkPop for 12 but 1..10 steps
-check checkPush for 12 but 1..10 steps
-check checkClear for 12 but 1..10 steps
+check { always (StackIsValid and (check_push or pop or clear) => after StackIsValid) } for 5 but 4..10 steps
